@@ -1,0 +1,1 @@
+import{J as e,T as t}from"./server-BTp-xg8h.js";var n=e();function r({className:e,...r}){return(0,n.jsx)(`select`,{className:t(`flex h-11 w-full rounded-md border border-border bg-surface px-3 text-sm text-fg`,`focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/70`,e),...r})}export{r as t};

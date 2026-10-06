@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "RESTOBAR ERP",
+      "hasCanvas": false,
+      "bodyTextLen": 270,
+      "bodyTextHash": "2250f6140fb1906b4c93b355828f82862f698772f0802cfe238641131ec9f1a0",
+      "bodyTextPrefix": "RESTOBAR ERP Mi Restobar Continúa el trabajo de Fase 2. Elige op",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "RESTOBAR ERP",
+      "hasCanvas": false,
+      "bodyTextLen": 270,
+      "bodyTextHash": "2250f6140fb1906b4c93b355828f82862f698772f0802cfe238641131ec9f1a0",
+      "bodyTextPrefix": "RESTOBAR ERP Mi Restobar Continúa el trabajo de Fase 2. Elige op",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}

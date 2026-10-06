@@ -1,0 +1,1 @@
+import{J as e,T as t}from"./server-BTp-xg8h.js";var n=e();function r({className:e,...r}){return(0,n.jsx)(`label`,{className:t(`text-xs font-medium tracking-wide text-muted`,e),...r})}export{r as t};
