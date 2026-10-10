@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RESTOBAR ERP</title>
+    <meta
+      name="description"
+      content="Sistema integral de gestión operativa y financiera para restobar."
+    />
+    <meta name="theme-color" content="#0c0b0a" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0c0b0a;
+        --surface: #141311;
+        --fg: #f3eee6;
+        --muted: #9a9188;
+        --border: #2c2924;
+        --danger: #c45c4a;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: Figtree, sans-serif;
+      }
+      form {
+        width: 100%;
+        max-width: 28rem;
+        padding: 24px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--surface);
+      }
+      p.kicker {
+        margin: 0;
+        font-size: 11px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      h1 {
+        margin: 8px 0 0;
+        font-family: Fraunces, serif;
+        font-size: 2rem;
+        font-weight: 500;
+      }
+      .lead { margin: 8px 0 0; color: var(--muted); font-size: 0.95rem; }
+      .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 20px; }
+      label { display: block; margin-top: 12px; font-size: 0.85rem; }
+      input {
+        width: 100%;
+        margin-top: 6px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        color: var(--fg);
+        font: inherit;
+      }
+      button {
+        font: inherit;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--fg);
+        min-height: 44px;
+        cursor: pointer;
+      }
+      button.primary {
+        width: 100%;
+        margin-top: 16px;
+        background: var(--fg);
+        color: #141311;
+        border: 0;
+        font-weight: 600;
+      }
+      button[aria-pressed="true"] { background: var(--fg); color: #141311; }
+      .error { min-height: 1.25rem; margin: 12px 0 0; color: var(--danger); font-size: 0.9rem; }
+      .extra { display: none; }
+      form.crear .extra { display: block; }
+    </style>
+  </head>
+  <body>
+    <form id="acceso" class="entrar" method="post" action="/api/auth/sign-in/email">
+      <p class="kicker">RESTOBAR ERP</p>
+      <h1 id="titulo">Entrar</h1>
+      <p class="lead">Cada cuenta ve solo su local. El administrador crea cajeros e inventario con su propia clave.</p>
+      <div class="tabs">
+        <button type="button" id="btn-entrar" aria-pressed="true">Ya tengo cuenta</button>
+        <button type="button" id="btn-crear" aria-pressed="false">Registrar negocio</button>
+      </div>
+      <div class="extra">
+        <label>Nombre del negocio<input id="negocio" name="negocio" value="Mi Restobar" autocomplete="organization" /></label>
+        <label>Tu nombre<input id="nombre" name="name" autocomplete="name" /></label>
+      </div>
+      <label>Correo<input id="email" name="email" type="email" autocomplete="email" required /></label>
+      <label>Contraseña<input id="password" name="password" type="password" minlength="8" autocomplete="current-password" required /></label>
+      <p class="error" id="error" role="alert"></p>
+      <button class="primary" id="enviar" type="submit">Entrar</button>
+    </form>
+    <script>
+      const form = document.querySelector("#acceso");
+      const titulo = document.querySelector("#titulo");
+      const enviar = document.querySelector("#enviar");
+      const error = document.querySelector("#error");
+      let modo = "entrar";
+
+      document.querySelector("#btn-entrar").onclick = () => setModo("entrar");
+      document.querySelector("#btn-crear").onclick = () => setModo("crear");
+
+      function setModo(next) {
+        modo = next;
+        form.className = next;
+        form.action = next === "crear" ? "/api/auth/sign-up/email" : "/api/auth/sign-in/email";
+        titulo.textContent = next === "crear" ? "Crear tu negocio" : "Entrar";
+        enviar.textContent = next === "crear" ? "Crear y entrar" : "Entrar";
+        document.querySelector("#btn-entrar").setAttribute("aria-pressed", String(next === "entrar"));
+        document.querySelector("#btn-crear").setAttribute("aria-pressed", String(next === "crear"));
+        document.querySelector("#nombre").required = next === "crear";
+        document.querySelector("#negocio").required = next === "crear";
+      }
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        error.textContent = "";
+        enviar.disabled = true;
+        const email = document.querySelector("#email").value.trim();
+        const password = document.querySelector("#password").value;
+        const name = document.querySelector("#nombre").value.trim();
+        const negocio = document.querySelector("#negocio").value.trim();
+        try {
+          const res = await fetch(form.action, {
+            method: "POST",
+            credentials: "include",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(
+              modo === "crear" ? { email, password, name } : { email, password },
+            ),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            const raw = data.message || "";
+            throw new Error(
+              raw.includes("already exists")
+                ? "Ese correo ya tiene cuenta. Entra con tu contraseña."
+                : raw || "No se pudo completar el acceso",
+            );
+          }
+          const token = res.headers.get("set-auth-token");
+          if (token) sessionStorage.setItem("grok-auth.bearer-token", token);
+          window.location.assign("/");
+        } catch (err) {
+          error.textContent = err instanceof Error ? err.message : "No se pudo entrar";
+          enviar.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>
