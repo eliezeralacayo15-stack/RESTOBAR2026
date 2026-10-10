@@ -1,4 +1,5 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, Navigate, useRouterState } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   BarChart3,
   ChefHat,
@@ -9,20 +10,24 @@ import {
   Settings,
   ShoppingBag,
   Store,
+  Users,
   UtensilsCrossed,
   Wallet,
   BookOpen,
 } from "lucide-react";
-import { useState, type ReactNode } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState, type ReactNode } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { getSnapshot } from "@/lib/erp/server";
+import { UserButton } from "@/lib/auth/gates";
+import { useCurrentUserState } from "@/lib/auth/use-current-user";
+import { createNegocio, getMe, getSnapshot } from "@/lib/erp/server";
 import { useSession } from "@/lib/erp/session";
 import { ROLE_MODULES, type Rol } from "@/lib/erp/types";
 import { money } from "@/lib/erp/format";
 import { cn } from "@/lib/utils";
-import { OperatorGate } from "./operator-gate";
 
 const NAV = [
   { id: "dashboard", to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -34,6 +39,7 @@ const NAV = [
   { id: "caja", to: "/caja", label: "Caja", icon: Wallet },
   { id: "gastos", to: "/gastos", label: "Gastos", icon: BookOpen },
   { id: "maestros", to: "/maestros", label: "Maestros", icon: Store },
+  { id: "equipo", to: "/equipo", label: "Equipo", icon: Users },
   { id: "reportes", to: "/reportes", label: "Reportes", icon: BarChart3 },
   { id: "config", to: "/configuracion", label: "Configuración", icon: Settings },
 ] as const;
@@ -74,15 +80,113 @@ function NavLinks({
   );
 }
 
+function Onboarding({ defaultName }: { defaultName: string }) {
+  const qc = useQueryClient();
+  const [nombre, setNombre] = useState("Mi Restobar");
+  const [persona, setPersona] = useState(defaultName);
+  const save = useMutation({
+    mutationFn: () =>
+      createNegocio({ data: { nombre, nombrePersona: persona || nombre } }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["me"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  return (
+    <main className="grid min-h-dvh place-items-center bg-bg px-4 text-fg">
+      <form
+        className="w-full max-w-md space-y-4 rounded-xl border border-border bg-surface p-6"
+        onSubmit={(e) => {
+          e.preventDefault();
+          save.mutate();
+        }}
+      >
+        <p className="text-[11px] tracking-[0.22em] text-muted uppercase">
+          Tu local
+        </p>
+        <h1 className="font-display text-3xl">Completa el negocio</h1>
+        <div>
+          <Label>Nombre del negocio</Label>
+          <Input value={nombre} onChange={(e) => setNombre(e.target.value)} required />
+        </div>
+        <div>
+          <Label>Tu nombre</Label>
+          <Input value={persona} onChange={(e) => setPersona(e.target.value)} required />
+        </div>
+        <Button type="submit" className="w-full" disabled={save.isPending}>
+          {save.isPending ? "Creando…" : "Abrir el local"}
+        </Button>
+      </form>
+    </main>
+  );
+}
+
 export function AppShell({ children }: { children: ReactNode }) {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { user, isPending } = useCurrentUserState();
   const operator = useSession((s) => s.operator);
-  const clear = useSession((s) => s.clearOperator);
+  const setOperator = useSession((s) => s.setOperator);
   const [open, setOpen] = useState(false);
-  const snap = useQuery({ queryKey: ["erp"], queryFn: () => getSnapshot() });
+  const me = useQuery({
+    queryKey: ["me"],
+    queryFn: () => getMe(),
+    enabled: !!user,
+  });
+  const snap = useQuery({
+    queryKey: ["erp"],
+    queryFn: () => getSnapshot(),
+    enabled: !!me.data?.negocio,
+  });
 
-  if (!operator) return <OperatorGate />;
+  useEffect(() => {
+    if (!me.data?.negocio) return;
+    setOperator({
+      idUsuario: me.data.userId,
+      usuario: me.data.email,
+      nombre: me.data.negocio.nombreMiembro,
+      idEmpleado: null,
+      rol: me.data.negocio.rol,
+      activo: true,
+    });
+  }, [me.data, setOperator]);
 
-  const empresa = snap.data?.config.Nombre_Empresa ?? "Mi Restobar";
+  if (pathname === "/login") {
+    if (isPending || (user && (me.isPending || me.isLoading))) {
+      return (
+        <div className="grid min-h-dvh place-items-center bg-bg text-sm text-muted">
+          Abriendo tu local…
+        </div>
+      );
+    }
+    if (user && me.data?.negocio) return <Navigate to="/" />;
+    if (user && me.data && !me.data.negocio) {
+      return <Onboarding defaultName={me.data.name} />;
+    }
+    return <>{children}</>;
+  }
+
+  if (isPending || (user && me.isPending)) {
+    return (
+      <div className="grid min-h-dvh place-items-center bg-bg text-sm text-muted">
+        Cargando el servicio…
+      </div>
+    );
+  }
+  if (!user) return <Navigate to="/login" />;
+  if (!me.data?.negocio) return <Onboarding defaultName={me.data?.name ?? ""} />;
+  if (
+    !operator ||
+    operator.idUsuario !== me.data.userId ||
+    operator.rol !== me.data.negocio.rol
+  ) {
+    return (
+      <div className="grid min-h-dvh place-items-center bg-bg text-sm text-muted">
+        Abriendo el local…
+      </div>
+    );
+  }
+
+  const empresa = snap.data?.config.Nombre_Empresa || me.data.negocio.nombre;
   const caja = snap.data?.caja;
   const efectivo = snap.data?.efectivoCaja ?? 0;
 
@@ -107,9 +211,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <span className="text-xs text-muted">
             {caja ? `Caja ${money(efectivo)}` : "Sin caja"}
           </span>
-          <Button variant="ghost" size="sm" onClick={clear}>
-            Salir
-          </Button>
+          <UserButton />
         </div>
       </div>
     </div>

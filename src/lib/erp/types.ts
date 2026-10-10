@@ -20,6 +20,7 @@ export const ROLE_MODULES: Record<Rol, string[]> = {
     "caja",
     "gastos",
     "maestros",
+    "equipo",
     "reportes",
     "config",
   ],

@@ -1,0 +1,10 @@
+node_modules
+.git
+.output
+dist
+.vercel
+.grok
+artifacts
+screenshots
+attachments
+*.zip

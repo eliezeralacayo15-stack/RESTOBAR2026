@@ -13,13 +13,16 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CajaRouteImport } from './routes/caja'
 import { Route as ComprasRouteImport } from './routes/compras'
 import { Route as ConfiguracionRouteImport } from './routes/configuracion'
+import { Route as EquipoRouteImport } from './routes/equipo'
 import { Route as GastosRouteImport } from './routes/gastos'
 import { Route as InventarioRouteImport } from './routes/inventario'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as MaestrosRouteImport } from './routes/maestros'
 import { Route as PosRouteImport } from './routes/pos'
 import { Route as RecetasRouteImport } from './routes/recetas'
 import { Route as ReportesRouteImport } from './routes/reportes'
 import { Route as VentasRouteImport } from './routes/ventas'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -41,6 +44,11 @@ const ConfiguracionRoute = ConfiguracionRouteImport.update({
   path: '/configuracion',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EquipoRoute = EquipoRouteImport.update({
+  id: '/equipo',
+  path: '/equipo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GastosRoute = GastosRouteImport.update({
   id: '/gastos',
   path: '/gastos',
@@ -49,6 +57,11 @@ const GastosRoute = GastosRouteImport.update({
 const InventarioRoute = InventarioRouteImport.update({
   id: '/inventario',
   path: '/inventario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MaestrosRoute = MaestrosRouteImport.update({
@@ -76,32 +89,43 @@ const VentasRoute = VentasRouteImport.update({
   path: '/ventas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/caja': typeof CajaRoute
   '/compras': typeof ComprasRoute
   '/configuracion': typeof ConfiguracionRoute
+  '/equipo': typeof EquipoRoute
   '/gastos': typeof GastosRoute
   '/inventario': typeof InventarioRoute
+  '/login': typeof LoginRoute
   '/maestros': typeof MaestrosRoute
   '/pos': typeof PosRoute
   '/recetas': typeof RecetasRoute
   '/reportes': typeof ReportesRoute
   '/ventas': typeof VentasRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/caja': typeof CajaRoute
   '/compras': typeof ComprasRoute
   '/configuracion': typeof ConfiguracionRoute
+  '/equipo': typeof EquipoRoute
   '/gastos': typeof GastosRoute
   '/inventario': typeof InventarioRoute
+  '/login': typeof LoginRoute
   '/maestros': typeof MaestrosRoute
   '/pos': typeof PosRoute
   '/recetas': typeof RecetasRoute
   '/reportes': typeof ReportesRoute
   '/ventas': typeof VentasRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -109,13 +133,16 @@ export interface FileRoutesById {
   '/caja': typeof CajaRoute
   '/compras': typeof ComprasRoute
   '/configuracion': typeof ConfiguracionRoute
+  '/equipo': typeof EquipoRoute
   '/gastos': typeof GastosRoute
   '/inventario': typeof InventarioRoute
+  '/login': typeof LoginRoute
   '/maestros': typeof MaestrosRoute
   '/pos': typeof PosRoute
   '/recetas': typeof RecetasRoute
   '/reportes': typeof ReportesRoute
   '/ventas': typeof VentasRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -124,39 +151,48 @@ export interface FileRouteTypes {
     | '/caja'
     | '/compras'
     | '/configuracion'
+    | '/equipo'
     | '/gastos'
     | '/inventario'
+    | '/login'
     | '/maestros'
     | '/pos'
     | '/recetas'
     | '/reportes'
     | '/ventas'
+    | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/caja'
     | '/compras'
     | '/configuracion'
+    | '/equipo'
     | '/gastos'
     | '/inventario'
+    | '/login'
     | '/maestros'
     | '/pos'
     | '/recetas'
     | '/reportes'
     | '/ventas'
+    | '/api/auth/$'
   id:
     | '__root__'
     | '/'
     | '/caja'
     | '/compras'
     | '/configuracion'
+    | '/equipo'
     | '/gastos'
     | '/inventario'
+    | '/login'
     | '/maestros'
     | '/pos'
     | '/recetas'
     | '/reportes'
     | '/ventas'
+    | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -164,13 +200,16 @@ export interface RootRouteChildren {
   CajaRoute: typeof CajaRoute
   ComprasRoute: typeof ComprasRoute
   ConfiguracionRoute: typeof ConfiguracionRoute
+  EquipoRoute: typeof EquipoRoute
   GastosRoute: typeof GastosRoute
   InventarioRoute: typeof InventarioRoute
+  LoginRoute: typeof LoginRoute
   MaestrosRoute: typeof MaestrosRoute
   PosRoute: typeof PosRoute
   RecetasRoute: typeof RecetasRoute
   ReportesRoute: typeof ReportesRoute
   VentasRoute: typeof VentasRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -203,6 +242,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConfiguracionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/equipo': {
+      id: '/equipo'
+      path: '/equipo'
+      fullPath: '/equipo'
+      preLoaderRoute: typeof EquipoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/gastos': {
       id: '/gastos'
       path: '/gastos'
@@ -215,6 +261,13 @@ declare module '@tanstack/react-router' {
       path: '/inventario'
       fullPath: '/inventario'
       preLoaderRoute: typeof InventarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/maestros': {
@@ -252,6 +305,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VentasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -260,13 +320,16 @@ const rootRouteChildren: RootRouteChildren = {
   CajaRoute: CajaRoute,
   ComprasRoute: ComprasRoute,
   ConfiguracionRoute: ConfiguracionRoute,
+  EquipoRoute: EquipoRoute,
   GastosRoute: GastosRoute,
   InventarioRoute: InventarioRoute,
+  LoginRoute: LoginRoute,
   MaestrosRoute: MaestrosRoute,
   PosRoute: PosRoute,
   RecetasRoute: RecetasRoute,
   ReportesRoute: ReportesRoute,
   VentasRoute: VentasRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

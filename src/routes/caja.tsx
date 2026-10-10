@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { money } from "@/lib/erp/format";
+import { labelPago } from "@/lib/erp/pagos";
 import { closeCaja, getCajaDetalle, getSnapshot, openCaja } from "@/lib/erp/server";
 import { useSession } from "@/lib/erp/session";
 
@@ -121,7 +122,7 @@ function CajaPage() {
               <Td>{m.concepto}</Td>
               <Td numeric>{money(m.entrada)}</Td>
               <Td numeric>{money(m.salida)}</Td>
-              <Td>{m.formaPago}</Td>
+              <Td>{labelPago(m.formaPago)}</Td>
             </tr>
           ))}
         </tbody>

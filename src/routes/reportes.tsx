@@ -12,6 +12,7 @@ import { PageHeader } from "@/components/erp/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TableWrap, THead, Td } from "@/components/erp/table";
 import { money, pct } from "@/lib/erp/format";
+import { labelPago } from "@/lib/erp/pagos";
 import { getSnapshot, getVentas } from "@/lib/erp/server";
 
 export const Route = createFileRoute("/reportes")({ component: ReportesPage });
@@ -102,7 +103,7 @@ function ReportesPage() {
                   <Td>
                     {v.fecha} {v.hora}
                   </Td>
-                  <Td>{v.formaPago}</Td>
+                  <Td>{labelPago(v.formaPago)}</Td>
                   <Td numeric>{money(v.total)}</Td>
                   <Td>{v.estado}</Td>
                 </tr>

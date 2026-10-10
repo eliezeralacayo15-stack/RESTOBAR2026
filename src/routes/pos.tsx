@@ -14,9 +14,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { NativeSelect } from "@/components/ui/native-select";
+import { TicketSheet } from "@/components/erp/ticket";
 import { money, round2 } from "@/lib/erp/format";
 import { getSnapshot, registrarVenta } from "@/lib/erp/server";
 import { useSession } from "@/lib/erp/session";
+import { FORMAS_PAGO, type FormaPago } from "@/lib/erp/pagos";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/pos")({ component: PosPage });
@@ -36,10 +38,17 @@ function PosPage() {
   const [cat, setCat] = useState("TODAS");
   const [cart, setCart] = useState<CartLine[]>([]);
   const [payOpen, setPayOpen] = useState(false);
-  const [forma, setForma] = useState<"EFECTIVO" | "TARJETA">("EFECTIVO");
-  const [ticket, setTicket] = useState<{ idVenta: string; total: number } | null>(
-    null,
-  );
+  const [forma, setForma] = useState<FormaPago>("EFECTIVO");
+  const [ticket, setTicket] = useState<{
+    idVenta: string;
+    total: number;
+    subtotal: number;
+    impuesto: number;
+    formaPago: string;
+    negocio: string;
+    cajero: string;
+    lines: { producto: string; cantidad: number; total: number }[];
+  } | null>(null);
 
   const data = snap.data;
   const cats = (data?.categorias ?? []).filter(
@@ -279,10 +288,13 @@ function PosPage() {
           <label className="text-xs text-muted">Forma de pago</label>
           <NativeSelect
             value={forma}
-            onChange={(e) => setForma(e.target.value as "EFECTIVO" | "TARJETA")}
+            onChange={(e) => setForma(e.target.value as FormaPago)}
           >
-            <option value="EFECTIVO">Efectivo</option>
-            <option value="TARJETA">Tarjeta</option>
+            {FORMAS_PAGO.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.label}
+              </option>
+            ))}
           </NativeSelect>
           <Button
             className="mt-4 w-full"
@@ -300,13 +312,12 @@ function PosPage() {
             <DialogTitle>Ticket cobrado</DialogTitle>
           </DialogHeader>
           {ticket ? (
-            <div className="space-y-2 text-sm">
-              <p className="font-mono">{ticket.idVenta}</p>
-              <p className="font-display text-3xl">{money(ticket.total)}</p>
-              <p className="text-muted">
-                Inventario descontado por receta. Movimiento de caja registrado.
-              </p>
-            </div>
+            <>
+              <TicketSheet ticket={ticket} />
+              <Button className="mt-4 w-full" onClick={() => window.print()}>
+                Imprimir ticket
+              </Button>
+            </>
           ) : null}
         </DialogContent>
       </Dialog>

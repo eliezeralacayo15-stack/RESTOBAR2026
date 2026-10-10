@@ -82,3 +82,26 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+.ticket-print {
+  color: #141311;
+  background: #f7f3ec;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .ticket-print,
+  .ticket-print * {
+    visibility: visible;
+  }
+  .ticket-print {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 80mm;
+    background: white;
+    color: black;
+  }
+}

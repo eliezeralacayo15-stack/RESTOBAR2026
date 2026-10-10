@@ -6,7 +6,9 @@ import { PageHeader } from "@/components/erp/page-header";
 import { TableWrap, THead, Td } from "@/components/erp/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { TicketSheet } from "@/components/erp/ticket";
 import { money } from "@/lib/erp/format";
+import { labelPago } from "@/lib/erp/pagos";
 import { anularVenta, getVentaDetalle, getVentas } from "@/lib/erp/server";
 import { useSession } from "@/lib/erp/session";
 
@@ -52,7 +54,7 @@ function VentasPage() {
                 {v.fecha} {v.hora}
               </Td>
               <Td>{v.cliente}</Td>
-              <Td>{v.formaPago}</Td>
+              <Td>{labelPago(v.formaPago)}</Td>
               <Td numeric>{money(v.total)}</Td>
               <Td>
                 <Badge tone={v.estado === "PAGADA" ? "success" : "danger"}>
@@ -64,7 +66,7 @@ function VentasPage() {
                   <Button variant="ghost" size="sm" onClick={() => setOpen(v.idVenta)}>
                     Detalle
                   </Button>
-                  {v.estado === "PAGADA" ? (
+                  {v.estado === "PAGADA" && operator?.rol === "ADMIN" ? (
                     <Button
                       variant="ghost"
                       size="sm"
@@ -79,21 +81,31 @@ function VentasPage() {
           ))}
         </tbody>
       </TableWrap>
-      {open && (
-        <div className="mt-4 rounded-xl border border-border bg-surface p-4">
-          <p className="mb-2 font-mono text-sm">{open}</p>
-          <ul className="space-y-1 text-sm">
-            {(det.data ?? []).map((l) => (
-              <li key={l.idDetalle} className="flex justify-between">
-                <span>
-                  {l.cantidad} × {l.producto}
-                </span>
-                <span className="tabular-nums">{money(l.total)}</span>
-              </li>
-            ))}
-          </ul>
+      {open && det.data?.venta ? (
+        <div className="mt-4">
+          <TicketSheet
+            ticket={{
+              negocio: det.data.negocio,
+              idVenta: det.data.venta.idVenta,
+              fecha: det.data.venta.fecha,
+              hora: det.data.venta.hora,
+              formaPago: det.data.venta.formaPago,
+              cajero: det.data.venta.cajero,
+              subtotal: det.data.venta.subtotal,
+              impuesto: det.data.venta.impuesto,
+              total: det.data.venta.total,
+              lines: det.data.lines.map((l) => ({
+                producto: l.producto,
+                cantidad: l.cantidad,
+                total: l.total,
+              })),
+            }}
+          />
+          <Button className="mt-3" onClick={() => window.print()}>
+            Imprimir ticket
+          </Button>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
